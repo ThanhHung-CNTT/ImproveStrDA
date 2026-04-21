@@ -1,0 +1,7 @@
+six
+lmdb
+tqdm
+nltk
+pyyaml
+pillow
+opencv-python

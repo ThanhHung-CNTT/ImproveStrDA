@@ -1,0 +1,59 @@
+# Changes in source for running DiaNA with StrDA
+
+1. model.py
+line 108 :
+replace
+    return prediction
+with
+    return contextual_feature, prediction
+
+2. dataset.py
+function __call__ of class AlignCollate:
+replace :
+    images, labels = zip(*batch)
+with :
+    if isinstance(batch[0], tuple):
+        images, labels = zip(*batch)
+    else:
+        images = batch
+        labels = None
+
+replace :
+    return image_tensors, labels
+with :
+    if labels is not None:
+        return image_tensors, labels
+    else:
+        return image_tensors
+
+3. test.py
+line 137 :
+replace
+    preds = model(image)
+with
+    _, preds = model(image)
+
+line 155 :
+replace
+    preds = model(image, text_for_pred, is_train=False)
+with
+    _, preds = model(image, text_for_pred, is_train=False)
+
+4. add 3 new file : diana_utils.py ; stage1_DiaNA.py ; stage2_DiaNA.py
+
+# cmd for running stage 1 with DiaNA
+
+```
+python stage1_DiaNA.py --saved_model trained_model/TRBA.pth --model TRBA --select_data select_data.npy --train --num_subsets 4
+```
+
+# cmd for running stage 2 with DiaNA
+
+```
+python stage2_DiaNA.py --saved_model trained_model/TRBA.pth --model TRBA --num_subsets 4
+```
+
+# Important Notes:
+- Check TODO comments in source code for tracking the individual changes for macos only.
+- Add "CUDA_VISIBLE_DEVICES=0" at the beginning of cmd for linux/windows environment.
+- Rememeber to install "scikit-learn" package via pip.
